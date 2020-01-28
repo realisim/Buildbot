@@ -37,10 +37,12 @@ func Build(iConfigFilePath, iTarget string) {
 	}
 
 	// git update
-	//	if err := gitUpdate(&c); err != nil {
-	//		fmt.Printf("gitUpdate failed: %v\n", err)
-	//		return
-	//	}
+	if c.Repo.UpdateBeforeBuild {
+		if err := gitUpdate(&c); err != nil {
+			fmt.Printf("gitUpdate failed: %v\n", err)
+			return
+		}
+	}
 
 	var selectedTargets []target
 	if iTarget == "all" {

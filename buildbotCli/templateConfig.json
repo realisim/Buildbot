@@ -1,0 +1,43 @@
+{
+	"DeployPath": "",
+	"Repo": {
+		"Path": "",
+		"BuildPath": ""
+	},
+	"Git": {
+		"ExePath": ""
+	},
+	"Cmake": {
+		"ExePath": "",
+		"Generator": "Visual Studio 15 2017 Win64"
+	},
+	"Qt": {
+		"QtBinPath": "",
+		"QtLibPath": "",
+		"QtInstallerFrameworkPath": ""
+	},
+	"Targets": [
+		{
+			"Name": "DummyName",
+			"BuildType": "debugBuild",
+			"CleanBeforeBuild": false,
+			"CmakeBuildOptions": [
+				"-DOption0=1",
+				"-DOption1=1"
+			],
+			"ArtefactFolderPath": "d:/somePath",
+			"InstallerType": "zipInstaller"
+		},
+		{
+			"Name": "DummyName2",
+			"BuildType": "releaseWithDebugInfoBuild",
+			"CleanBeforeBuild": true,
+			"CmakeBuildOptions": [
+				"-DOption0=1",
+				"-DOption1=0"
+			],
+			"ArtefactFolderPath": "d:/somePath",
+			"InstallerType": "qtInstaller"
+		}
+	]
+}

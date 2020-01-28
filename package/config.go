@@ -9,8 +9,9 @@ import (
 )
 
 type repository struct {
-	Path      string
-	BuildPath string
+	Path              string
+	BuildPath         string
+	UpdateBeforeBuild bool
 }
 
 type gitSourceControl struct {
@@ -71,20 +72,20 @@ func MakeTemplateConfig() error {
 	c.Cmake.Generator = "Visual Studio 15 2017 Win64"
 
 	t0 := target{
-		"DummyName",
-		"debugBuild",
-		false,
-		[]string{"-DOption0=1", "-DOption1=1"},
-		"d:/somePath",
-		"zipInstaller"}
+		Name:               "DummyName",
+		BuildType:          "debugBuild",
+		CleanBeforeBuild:   false,
+		CmakeBuildOptions:  []string{"-DOption0=1", "-DOption1=1"},
+		ArtefactFolderPath: "d:/somePath",
+		InstallerType:      "zipInstaller"}
 
 	t1 := target{
-		"DummyName2",
-		"releaseWithDebugInfoBuild",
-		true,
-		[]string{"-DOption0=1", "-DOption1=0"},
-		"d:/somePath",
-		"qtInstaller"}
+		Name:               "DummyName2",
+		BuildType:          "releaseWithDebugInfoBuild",
+		CleanBeforeBuild:   true,
+		CmakeBuildOptions:  []string{"-DOption0=1", "-DOption1=0"},
+		ArtefactFolderPath: "d:/somePath",
+		InstallerType:      "qtInstaller"}
 	c.Targets = append(c.Targets, t0)
 	c.Targets = append(c.Targets, t1)
 
