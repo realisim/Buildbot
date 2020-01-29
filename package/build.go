@@ -2,7 +2,10 @@ package buildbot
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os/exec"
+	"regexp"
+	"strconv"
 )
 
 func gitUpdate(configPtr *config) error {
@@ -44,8 +47,9 @@ func Build(iConfigFilePath, iTarget string) {
 		}
 	}
 
+	// make an array of seleted target
 	var selectedTargets []target
-	if iTarget == "all" {
+	if iTarget == "" {
 		selectedTargets = c.Targets[:]
 	} else {
 		// find index of selected target
@@ -67,6 +71,9 @@ func Build(iConfigFilePath, iTarget string) {
 			return
 		}
 
+		//increment version
+		incrementVersion(t)
+
 		// cmake build
 		if err := cmakeBuild(&c, &t); err != nil {
 			fmt.Printf("cmakeBuild failed: %v\n", err)
@@ -85,4 +92,24 @@ func Build(iConfigFilePath, iTarget string) {
 	}
 
 	fmt.Printf("Build done.")
+}
+
+func incrementVersion(iTarget target) {
+	if iTarget.VersionFilePath == "" {
+		return
+	}
+
+	versionFile, err := ioutil.ReadFile(iTarget.VersionFilePath)
+	if err != nil {
+		fmt.Printf("if this happens, investigate if we should treat it as an error...\n")
+		return
+	}
+
+	regexpPatern := regexp.MustCompile("VERSION_BUILDNUMBER ([0-9]+)")
+	matches := regexpPatern.FindSubmatch(versionFile)
+	if len(matches) == 2 {
+		matches[1], _ = strconv.Atoi((strconv.ParseInt(matches[1], 10, 32) + 1))
+	}
+
+	fmt.Printf("%v\n", versionFile)
 }

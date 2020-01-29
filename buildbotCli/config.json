@@ -3,7 +3,7 @@
 	"Repo": {
 		"Path": "C:/Users/Po/code/simthetiq",
 		"BuildPath": "C:/Users/Po/code/simthetiq/CMake",
-		"UpdateBeforeBuild": true
+		"UpdateBeforeBuild": false
 	},
 	"Git": {
 		"ExePath": "D:/Program Files/Git/bin/git.exe"
@@ -27,7 +27,8 @@
 				"-DBuildProjectIG_ToolDistortionCharacterizer=1"
 			],
 			"ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/DistortionCharacterizer",
-			"InstallerType": "qtInstaller"
+			"InstallerType": "qtInstaller",
+			"VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/AssetProcessor/Version.h"
 		},
 		{
 			"Name": "UnitTests",
@@ -37,7 +38,8 @@
 				"-DBuildUnitTests=1"
 			],
 			"ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/UnitTests",
-			"InstallerType": "noInstaller"
+			"InstallerType": "noInstaller",
+			"VersionFilePath": ""
 		}
 	]
 }

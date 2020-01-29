@@ -47,12 +47,17 @@ const (
 )
 
 type target struct {
-	Name               string
-	BuildType          buildType
-	CleanBeforeBuild   bool
-	CmakeBuildOptions  []string
+	Name string
+	// build related
+	BuildType         buildType
+	CleanBeforeBuild  bool
+	CmakeBuildOptions []string
+
+	// installer related
 	ArtefactFolderPath string
 	InstallerType      installerType
+
+	VersionFilePath string
 }
 
 type config struct {
@@ -77,7 +82,8 @@ func MakeTemplateConfig() error {
 		CleanBeforeBuild:   false,
 		CmakeBuildOptions:  []string{"-DOption0=1", "-DOption1=1"},
 		ArtefactFolderPath: "d:/somePath",
-		InstallerType:      "zipInstaller"}
+		InstallerType:      "zipInstaller",
+		VersionFilePath:    "c:/pathTo/SomeVersion/File.h"}
 
 	t1 := target{
 		Name:               "DummyName2",
@@ -85,7 +91,8 @@ func MakeTemplateConfig() error {
 		CleanBeforeBuild:   true,
 		CmakeBuildOptions:  []string{"-DOption0=1", "-DOption1=0"},
 		ArtefactFolderPath: "d:/somePath",
-		InstallerType:      "qtInstaller"}
+		InstallerType:      "qtInstaller",
+		VersionFilePath:    ""} // no path means no version increment
 	c.Targets = append(c.Targets, t0)
 	c.Targets = append(c.Targets, t1)
 
