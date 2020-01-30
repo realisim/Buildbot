@@ -1,5 +1,5 @@
 {
-	"DeployPath": "d:/code/simthetiq/deploy/v1",
+	"DeployPath": "d:/apps/simthetiq/",
 	"Repo": {
 		"Path": "C:/Users/Po/code/simthetiq",
 		"BuildPath": "C:/Users/Po/code/simthetiq/CMake",
@@ -15,9 +15,21 @@
 	"Qt": {
 		"QtBinPath": "D:/Qt/5.9.7/msvc2017_64/bin",
 		"QtLibPath": "D:/Qt/5.9.7/msvc2017_64/lib",
-		"QtInstallerFrameworkPath": ""
+		"QtInstallerFrameworkPath": "D:/Qt/Tools/QtInstallerFramework/3.2/bin"
 	},
 	"Targets": [
+		{
+			"Name": "ImageGenerator",
+			"BuildType": "releaseBuild",
+			"CleanBeforeBuild": false,
+			"CmakeBuildOptions": [
+				"-DBuildProjectEngine=1",
+				"-DBuildProjectIG_ImageGenerator=1"
+			],
+			"ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/ImageGenerator",
+			"InstallerType": "zipInstaller",
+			"VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/ImageGenerator/Version.h"
+		},
 		{
 			"Name": "DistortionCharacterizer",
 			"BuildType": "releaseBuild",

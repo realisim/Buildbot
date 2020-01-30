@@ -3,9 +3,11 @@ package buildbot
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func gitUpdate(configPtr *config) error {
@@ -72,7 +74,7 @@ func Build(iConfigFilePath, iTarget string) {
 		}
 
 		//increment version
-		incrementVersion(t)
+		incrementVersion(&t)
 
 		// cmake build
 		if err := cmakeBuild(&c, &t); err != nil {
@@ -87,29 +89,68 @@ func Build(iConfigFilePath, iTarget string) {
 		}
 
 		// create installer
+		var i installer
+		switch t.InstallerType {
+		case noInstallerType:
+			i = noInstaller{&t}
+		case zipInstallerType:
+			i = zipInstaller{&t}
+		case qtInstallerType:
+			i = qtInstaller{&c.Qt, &t}
+		default:
+		}
+
+		var ia installerArtefact
+		var err error
+		if ia, err = i.createInstaller(); err != nil {
+			fmt.Printf("creating installer failed: %v\n", err)
+		}
 
 		// deploy
+		if err := os.Rename(ia.filePath, fmt.Sprintf("%v/%v", c.DeployPath, ia.fileName)); err != nil {
+			fmt.Printf("could not deploy: %v\n", err)
+		}
+
 	}
 
 	fmt.Printf("Build done.")
 }
 
-func incrementVersion(iTarget target) {
-	if iTarget.VersionFilePath == "" {
+func incrementVersion(t *target) {
+	if t.VersionFilePath == "" {
 		return
 	}
 
-	versionFile, err := ioutil.ReadFile(iTarget.VersionFilePath)
+	content, err := ioutil.ReadFile(t.VersionFilePath)
 	if err != nil {
 		fmt.Printf("if this happens, investigate if we should treat it as an error...\n")
 		return
 	}
 
-	regexpPatern := regexp.MustCompile("VERSION_BUILDNUMBER ([0-9]+)")
-	matches := regexpPatern.FindSubmatch(versionFile)
-	if len(matches) == 2 {
-		matches[1], _ = strconv.Atoi((strconv.ParseInt(matches[1], 10, 32) + 1))
-	}
+	// get full version tuble
 
-	fmt.Printf("%v\n", versionFile)
+	regexpPatern := regexp.MustCompile("(VERSION_MAJOR )([0-9]+).*\n.*(VERSION_MINOR )([0-9]+).*\n.*(VERSION_REVISION )([0-9]+).*\n.*(VERSION_BUILDNUMBER )([0-9]+)")
+	matches := regexpPatern.FindSubmatch(content)
+	if len(matches) == 9 {
+		major, _ := strconv.ParseInt(string(matches[2]), 10, 64)
+		minor, _ := strconv.ParseInt(string(matches[4]), 10, 64)
+		revision, _ := strconv.ParseInt(string(matches[6]), 10, 64)
+		buildNumber, _ := strconv.ParseInt(string(matches[8]), 10, 64)
+		buildNumber += 1
+
+		// assign version to target
+		t.versionTuple = [4]int{int(major), int(minor), int(revision), int(buildNumber)}
+
+		// replace in file
+		newContent := strings.Replace(string(content),
+			string(matches[7])+string(matches[8]),
+			fmt.Sprintf("VERSION_BUILDNUMBER %d", buildNumber), 1)
+
+		ioutil.WriteFile(t.VersionFilePath, []byte(newContent), 0)
+
+		fmt.Printf("Build number increased from: %v.%v.%v.%v to %v.%v.%v.%v\n",
+			major, minor, revision, buildNumber-1,
+			major, minor, revision, buildNumber)
+		fmt.Printf("%v\n", newContent)
+	}
 }

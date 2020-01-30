@@ -41,9 +41,9 @@ const (
 type installerType string
 
 const (
-	noInstaller  = "noInstaller"
-	zipInstaller = "zipInstaller"
-	qtInstaller  = "qtInstaller"
+	noInstallerType  = "noInstaller"
+	zipInstallerType = "zipInstaller"
+	qtInstallerType  = "qtInstaller"
 )
 
 type target struct {
@@ -58,6 +58,7 @@ type target struct {
 	InstallerType      installerType
 
 	VersionFilePath string
+	versionTuple    [4]int
 }
 
 type config struct {
