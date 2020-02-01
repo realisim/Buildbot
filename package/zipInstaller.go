@@ -15,7 +15,7 @@ type zipInstaller struct {
 	t *target
 }
 
-func (i zipInstaller) createInstaller() (installerArtefact, error) {
+func (i zipInstaller) createInstaller(outputPath string) error {
 	fmt.Printf("Creating zip installer for target %v...\n", i.t.Name)
 	var err error
 
@@ -48,16 +48,15 @@ func (i zipInstaller) createInstaller() (installerArtefact, error) {
 
 	// create archive
 	archiveFileName := fmt.Sprintf("%v_%v.zip", i.t.Name, i.t.versionTuple)
-	archiveFilePath := fmt.Sprintf("%v/%v", i.t.ArtefactFolderPath, archiveFileName)
+	archiveFilePath := fmt.Sprintf("%v/%v", outputPath, archiveFileName)
 	a, err := os.Create(archiveFilePath)
 	defer a.Close()
 
 	if err != nil {
-		return installerArtefact{}, fmt.Errorf("Could not create file %v: ", archiveFilePath)
+		return fmt.Errorf("Could not create file %v: ", archiveFilePath)
 	}
 
 	io.Copy(a, compressedBuffer)
 
-	ia := installerArtefact{archiveFilePath, archiveFileName}
-	return ia, nil
+	return nil
 }

@@ -1,57 +1,89 @@
 {
-	"DeployPath": "d:/apps/simthetiq/",
-	"Repo": {
-		"Path": "C:/Users/Po/code/simthetiq",
-		"BuildPath": "C:/Users/Po/code/simthetiq/CMake",
-		"UpdateBeforeBuild": false
-	},
-	"Git": {
-		"ExePath": "D:/Program Files/Git/bin/git.exe"
-	},
-	"Cmake": {
-		"ExePath": "D:/Program Files/CMake/bin/cmake.exe",
-		"Generator": "Visual Studio 15 2017 Win64"
-	},
-	"Qt": {
-		"QtBinPath": "D:/Qt/5.9.7/msvc2017_64/bin",
-		"QtLibPath": "D:/Qt/5.9.7/msvc2017_64/lib",
-		"QtInstallerFrameworkPath": "D:/Qt/Tools/QtInstallerFramework/3.2/bin"
-	},
-	"Targets": [
-		{
-			"Name": "ImageGenerator",
-			"BuildType": "releaseBuild",
-			"CleanBeforeBuild": false,
-			"CmakeBuildOptions": [
-				"-DBuildProjectEngine=1",
-				"-DBuildProjectIG_ImageGenerator=1"
-			],
-			"ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/ImageGenerator",
-			"InstallerType": "zipInstaller",
-			"VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/ImageGenerator/Version.h"
-		},
-		{
-			"Name": "DistortionCharacterizer",
-			"BuildType": "releaseBuild",
-			"CleanBeforeBuild": false,
-			"CmakeBuildOptions": [
-				"-DBuildProjectEngine=1",
-				"-DBuildProjectIG_ToolDistortionCharacterizer=1"
-			],
-			"ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/DistortionCharacterizer",
-			"InstallerType": "qtInstaller",
-			"VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/AssetProcessor/Version.h"
-		},
-		{
-			"Name": "UnitTests",
-			"BuildType": "releaseBuild",
-			"CleanBeforeBuild": false,
-			"CmakeBuildOptions": [
-				"-DBuildUnitTests=1"
-			],
-			"ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/UnitTests",
-			"InstallerType": "noInstaller",
-			"VersionFilePath": ""
-		}
-	]
+    "DeployPath": "d:/apps/simthetiq/",
+    "Repo": {
+        "Path": "C:/Users/Po/code/simthetiq",
+        "BuildPath": "C:/Users/Po/code/simthetiq/CMake",
+        "UpdateBeforeBuild": false
+    },
+    "Git": {
+        "ExePath": "D:/Program Files/Git/bin/git.exe"
+    },
+    "Cmake": {
+        "ExePath": "D:/Program Files/CMake/bin/cmake.exe",
+        "Generator": "Visual Studio 15 2017 Win64"
+    },
+    "Qt": {
+        "QtBinPath": "D:/Qt/5.9.7/msvc2017_64/bin",
+        "QtLibPath": "D:/Qt/5.9.7/msvc2017_64/lib",
+        "QtInstallerFrameworkBinPath": "D:/Qt/Tools/QtInstallerFramework/3.2/bin"
+    },
+    "Builds": [
+        {
+            "Name": "UnitTests",
+            "BuildType": "debugBuild",
+            "CleanBeforeBuild": false,
+            "CmakeBuildOptions": [
+                "-DBuildUnitTests=1"
+            ],
+            "TargetNames": [
+                "UnitTests"
+            ]
+        },
+        {
+            "Name": "IG",
+            "BuildType": "release",
+            "CleanBeforeBuild": false,
+            "CmakeBuildOptions": [
+                "-DBuildProjectEngine=1",
+                "-DBuildProjectIG_ImageGenerator=1",
+                "-DBuildProjectIG_ToolDistortionCharacterizer=1"
+            ],
+            "TargetNames": [
+                "ImageGenerator",
+                "DistortionCharacterizer"
+            ]
+        },
+        {
+            "Name": "DC",
+            "BuildType": "release",
+            "CleanBeforeBuild": false,
+            "CmakeBuildOptions": [
+                "-DBuildProjectEngine=1",
+                "-DBuildProjectIG_ToolDistortionCharacterizer=1"
+            ],
+            "TargetNames": [
+                "DistortionCharacterizer"
+            ]
+        }
+    ],
+    "Targets": {
+        "ImageGenerator": {
+            "Name": "ImageGenerator",
+            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/ImageGenerator",
+            "ArtefactFileName": "ImageGenerator.exe",
+            "RequiresQtDeploy" : true,
+            "InstallerType": "zipInstaller",
+            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/ImageGenerator/Version.h"
+        },
+        "DistortionCharacterizer": {
+            "Name": "DistortionCharacterizer",
+            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/DistortionCharacterizer",
+            "ArtefactFileName": "DistortionCharacterizer.exe",
+            "RequiresQtDeploy" : true,
+            "InstallerType": "qtInstaller",
+            "QtInstallerConfig": {
+                "QtInstallerFolderPath": "C:/Users/Po/code/simthetiq/Projects/IG/Tools/DistortionCharacterizer/Installer",
+                "BuildArtefactToQtInstallerPackagesRelativeFolder": {
+                "C:/Users/Po/code/simthetiq/bin/DistortionCharacterizer": "packages/com.simthetiq.distortionCharacterizer/data" }
+            },
+            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/AssetProcessor/Version.h"
+        },
+        "UnitTests": {
+           "Name": "UnitTests",
+            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/UnitTests",
+            "RequiresQtDeploy" : false,
+            "InstallerType": "noInstaller",
+            "VersionFilePath": ""
+        }
+    }
 }

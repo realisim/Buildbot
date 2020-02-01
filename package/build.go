@@ -3,7 +3,6 @@ package buildbot
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
@@ -32,8 +31,8 @@ func gitUpdate(configPtr *config) error {
 	return nil
 }
 
-func Build(iConfigFilePath, iTarget string) {
-	fmt.Printf("Build call with config %s and taget %s\n", iConfigFilePath, iTarget)
+func Build(iConfigFilePath, iBuild string) {
+	fmt.Printf("Build call with config %s and build %s\n", iConfigFilePath, iBuild)
 
 	c, err := parseConfig(iConfigFilePath)
 	if err != nil {
@@ -50,45 +49,55 @@ func Build(iConfigFilePath, iTarget string) {
 	}
 
 	// make an array of seleted target
-	var selectedTargets []target
-	if iTarget == "" {
-		selectedTargets = c.Targets[:]
-	} else {
-		// find index of selected target
-		for i := range c.Targets {
-			if c.Targets[i].Name == iTarget {
-				selectedTargets = append(selectedTargets, c.Targets[i])
-			}
+	var b build
+	// find index of selected target
+	for i := range c.Builds {
+		if c.Builds[i].Name == iBuild {
+			b = c.Builds[i]
 		}
-
 	}
 
-	// for each target
-	for _, t := range selectedTargets {
-		fmt.Printf("Building target %v\n", t)
+	fmt.Printf("Building target %v\n", b)
 
-		// cmake generator
-		if err := cmakeGenerate(&c, &t); err != nil {
-			fmt.Printf("cmakeGenerate failed: %v\n", err)
-			return
-		}
+	//	// cmake generator
+	//	cmake := cmake{&c, &b}
+	//	if err := cmake.Generate(); err != nil {
+	//		fmt.Printf("cmakeGenerate failed: %v\n", err)
+	//		return
+	//	}
+	//
+	//	//increment version
+	//	incrementVersion(&c, &b)
+	//
+	//	// cmake build
+	//	if err := cmake.Build(); err != nil {
+	//		fmt.Printf("cmakeBuild failed: %v\n", err)
+	//		return
+	//	}
+	//
+	//	// cmake run install target
+	//	if err := cmake.Install(); err != nil {
+	//		fmt.Printf("cmakeInstall failed: %v\n", err)
+	//		return
+	//	}
+	//
+	//	// deploy qt if necessary
+	//	deployQt(&c, &b)
 
-		//increment version
-		incrementVersion(&t)
+	// create installer for each target of build
+	if err := createInstallers(&c, &b); err != nil {
+		fmt.Printf("createInstallers failed: %v\n", err)
+		return
+	}
 
-		// cmake build
-		if err := cmakeBuild(&c, &t); err != nil {
-			fmt.Printf("cmakeBuild failed: %v\n", err)
-			return
-		}
+	fmt.Printf("Build done.")
+}
 
-		// cmake run install target
-		if err := cmakeInstall(&c, &t); err != nil {
-			fmt.Printf("cmakeInstall failed: %v\n", err)
-			return
-		}
+func createInstallers(c *config, b *build) error {
 
-		// create installer
+	for _, tn := range b.TargetNames {
+		t := c.Targets[tn]
+
 		var i installer
 		switch t.InstallerType {
 		case noInstallerType:
@@ -100,57 +109,91 @@ func Build(iConfigFilePath, iTarget string) {
 		default:
 		}
 
-		var ia installerArtefact
-		var err error
-		if ia, err = i.createInstaller(); err != nil {
-			fmt.Printf("creating installer failed: %v\n", err)
+		// log the error
+		if err := i.createInstaller(c.DeployPath); err != nil {
+			return fmt.Errorf("creating installer on target %v failed: %v\n", t.Name, err)
 		}
-
-		// deploy
-		if err := os.Rename(ia.filePath, fmt.Sprintf("%v/%v", c.DeployPath, ia.fileName)); err != nil {
-			fmt.Printf("could not deploy: %v\n", err)
-		}
-
 	}
 
-	fmt.Printf("Build done.")
+	return nil
 }
 
-func incrementVersion(t *target) {
-	if t.VersionFilePath == "" {
-		return
+func deployQt(c *config, b *build) error {
+	for _, tn := range b.TargetNames {
+		t := c.Targets[tn]
+
+		if t.RequiresQtDeploy {
+
+			args := []string{
+				fmt.Sprintf("%v/%v/%v",
+					t.ArtefactFolderPath,
+					toBuildFolderName(b.BuildType),
+					t.ArtefactFileName),
+				"--release", "--force"}
+
+			command := exec.Command(c.Qt.QtBinPath+"/windeployqt.exe", args...)
+			if _, err := commandOutput(command); err != nil {
+				return fmt.Errorf("windeployqt.exe failed: %v", err)
+			}
+		}
 	}
 
-	content, err := ioutil.ReadFile(t.VersionFilePath)
-	if err != nil {
-		fmt.Printf("if this happens, investigate if we should treat it as an error...\n")
-		return
+	return nil
+}
+
+// increment version file for each taget of build
+func incrementVersion(c *config, b *build) {
+	for _, tn := range b.TargetNames {
+		t := c.Targets[tn]
+
+		if t.VersionFilePath == "" {
+			return
+		}
+
+		content, err := ioutil.ReadFile(t.VersionFilePath)
+		if err != nil {
+			fmt.Printf("if this happens, investigate if we should treat it as an error...\n")
+			return
+		}
+
+		// get full version tuble
+
+		regexpPatern := regexp.MustCompile("(VERSION_MAJOR )([0-9]+).*\n.*(VERSION_MINOR )([0-9]+).*\n.*(VERSION_REVISION )([0-9]+).*\n.*(VERSION_BUILDNUMBER )([0-9]+)")
+		matches := regexpPatern.FindSubmatch(content)
+		if len(matches) == 9 {
+			major, _ := strconv.ParseInt(string(matches[2]), 10, 64)
+			minor, _ := strconv.ParseInt(string(matches[4]), 10, 64)
+			revision, _ := strconv.ParseInt(string(matches[6]), 10, 64)
+			buildNumber, _ := strconv.ParseInt(string(matches[8]), 10, 64)
+			buildNumber += 1
+
+			// assign version to target
+			t.versionTuple = [4]int{int(major), int(minor), int(revision), int(buildNumber)}
+
+			// replace in file
+			newContent := strings.Replace(string(content),
+				string(matches[7])+string(matches[8]),
+				fmt.Sprintf("VERSION_BUILDNUMBER %d", buildNumber), 1)
+
+			ioutil.WriteFile(t.VersionFilePath, []byte(newContent), 0)
+
+			fmt.Printf("Build number increased from: %v.%v.%v.%v to %v.%v.%v.%v\n",
+				major, minor, revision, buildNumber-1,
+				major, minor, revision, buildNumber)
+			fmt.Printf("%v\n", newContent)
+		}
 	}
+}
 
-	// get full version tuble
-
-	regexpPatern := regexp.MustCompile("(VERSION_MAJOR )([0-9]+).*\n.*(VERSION_MINOR )([0-9]+).*\n.*(VERSION_REVISION )([0-9]+).*\n.*(VERSION_BUILDNUMBER )([0-9]+)")
-	matches := regexpPatern.FindSubmatch(content)
-	if len(matches) == 9 {
-		major, _ := strconv.ParseInt(string(matches[2]), 10, 64)
-		minor, _ := strconv.ParseInt(string(matches[4]), 10, 64)
-		revision, _ := strconv.ParseInt(string(matches[6]), 10, 64)
-		buildNumber, _ := strconv.ParseInt(string(matches[8]), 10, 64)
-		buildNumber += 1
-
-		// assign version to target
-		t.versionTuple = [4]int{int(major), int(minor), int(revision), int(buildNumber)}
-
-		// replace in file
-		newContent := strings.Replace(string(content),
-			string(matches[7])+string(matches[8]),
-			fmt.Sprintf("VERSION_BUILDNUMBER %d", buildNumber), 1)
-
-		ioutil.WriteFile(t.VersionFilePath, []byte(newContent), 0)
-
-		fmt.Printf("Build number increased from: %v.%v.%v.%v to %v.%v.%v.%v\n",
-			major, minor, revision, buildNumber-1,
-			major, minor, revision, buildNumber)
-		fmt.Printf("%v\n", newContent)
+func toBuildFolderName(bt buildType) string {
+	r := "Debug"
+	switch bt {
+	case debugBuild:
+	case releaseBuild:
+		r = "Release"
+	case releaseWithDebugInfoBuild:
+		r = "RelWithDebInfo"
+	default:
 	}
+	return r
 }

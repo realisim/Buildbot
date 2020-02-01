@@ -2,7 +2,8 @@
 	"DeployPath": "",
 	"Repo": {
 		"Path": "",
-		"BuildPath": ""
+		"BuildPath": "",
+		"UpdateBeforeBuild": false
 	},
 	"Git": {
 		"ExePath": ""
@@ -16,28 +17,68 @@
 		"QtLibPath": "",
 		"QtInstallerFrameworkPath": ""
 	},
-	"Targets": [
+	"Builds": [
 		{
-			"Name": "DummyName",
+			"Name": "Dummy debugbuild",
 			"BuildType": "debugBuild",
 			"CleanBeforeBuild": false,
 			"CmakeBuildOptions": [
 				"-DOption0=1",
 				"-DOption1=1"
 			],
-			"ArtefactFolderPath": "d:/somePath",
-			"InstallerType": "zipInstaller"
+			"TargetNames": [
+				"DummyName",
+				"DummyName2"
+			]
 		},
 		{
-			"Name": "DummyName2",
+			"Name": "Dummy release build",
 			"BuildType": "releaseWithDebugInfoBuild",
 			"CleanBeforeBuild": true,
 			"CmakeBuildOptions": [
 				"-DOption0=1",
 				"-DOption1=0"
 			],
-			"ArtefactFolderPath": "d:/somePath",
-			"InstallerType": "qtInstaller"
+			"TargetNames": [
+				"DummyName",
+				"DummyName2",
+				"DummyName3"
+			]
 		}
-	]
+	],
+	"Targets": {
+		"DummyName": {
+			"Name": "DummyName",
+			"RequiresQtDeploy": false,
+			"ArtefactFolderPath": "d:/somePath",
+			"ArtefactFileName": "",
+			"InstallerType": "zipInstaller",
+			"QtInstallerConfig": null,
+			"VersionFilePath": "c:/pathTo/SomeVersion/File.h"
+		},
+		"DummyName2": {
+			"Name": "DummyName2",
+			"RequiresQtDeploy": false,
+			"ArtefactFolderPath": "d:/somePath2",
+			"ArtefactFileName": "",
+			"InstallerType": "zipInstaller",
+			"QtInstallerConfig": null,
+			"VersionFilePath": "c:/pathTo/SomeVersion/File.h"
+		},
+		"DummyName3": {
+			"Name": "DummyName3",
+			"RequiresQtDeploy": false,
+			"ArtefactFolderPath": "d:/somePath3",
+			"ArtefactFileName": "",
+			"InstallerType": "qtInstaller",
+			"QtInstallerConfig": {
+				"QtInstallerFolderPath": "e:/installer",
+				"BuildArtefactToQtInstallerPackagesRelativeFolder": {
+					"d:/path/to/my/build/artefact": "packages/com.mycompany.myexec/data",
+					"d:/path/to/my/build/artefact2": "packages/com.mycompany.myexec.Options/data"
+				}
+			},
+			"VersionFilePath": ""
+		}
+	}
 }
