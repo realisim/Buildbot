@@ -59,30 +59,30 @@ func Build(iConfigFilePath, iBuild string) {
 
 	fmt.Printf("Building target %v\n", b)
 
-	//	// cmake generator
-	//	cmake := cmake{&c, &b}
-	//	if err := cmake.Generate(); err != nil {
-	//		fmt.Printf("cmakeGenerate failed: %v\n", err)
-	//		return
-	//	}
-	//
-	//	//increment version
-	//	incrementVersion(&c, &b)
-	//
-	//	// cmake build
-	//	if err := cmake.Build(); err != nil {
-	//		fmt.Printf("cmakeBuild failed: %v\n", err)
-	//		return
-	//	}
-	//
-	//	// cmake run install target
-	//	if err := cmake.Install(); err != nil {
-	//		fmt.Printf("cmakeInstall failed: %v\n", err)
-	//		return
-	//	}
-	//
-	//	// deploy qt if necessary
-	//	deployQt(&c, &b)
+	// cmake generator
+	cmake := cmake{&c, &b}
+	if err := cmake.Generate(); err != nil {
+		fmt.Printf("cmakeGenerate failed: %v\n", err)
+		return
+	}
+
+	//increment version
+	incrementVersion(&c, &b)
+
+	// cmake build
+	if err := cmake.Build(); err != nil {
+		fmt.Printf("cmakeBuild failed: %v\n", err)
+		return
+	}
+
+	// cmake run install target
+	if err := cmake.Install(); err != nil {
+		fmt.Printf("cmakeInstall failed: %v\n", err)
+		return
+	}
+
+	// deploy qt if necessary
+	deployQt(&c, &b)
 
 	// create installer for each target of build
 	if err := createInstallers(&c, &b); err != nil {
@@ -169,6 +169,8 @@ func incrementVersion(c *config, b *build) {
 
 			// assign version to target
 			t.versionTuple = [4]int{int(major), int(minor), int(revision), int(buildNumber)}
+			// reassign target to save versionTuple
+			c.Targets[tn] = t
 
 			// replace in file
 			newContent := strings.Replace(string(content),

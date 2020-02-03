@@ -35,28 +35,40 @@
             "CleanBeforeBuild": false,
             "CmakeBuildOptions": [
                 "-DBuildProjectEngine=1",
+                "-DBuildProjectIG_AssetProcessor=1",
                 "-DBuildProjectIG_ImageGenerator=1",
-                "-DBuildProjectIG_ToolDistortionCharacterizer=1"
+                "-DBuildProjectIG_ToolDistortionCharacterizer=1",
+                "-DBuildProjectIG_ToolTerrainProcessor=1"
             ],
             "TargetNames": [
+                "AssetProcessor",
                 "ImageGenerator",
-                "DistortionCharacterizer"
+                "DistortionCharacterizer",
+                "TerrainProcessor"
             ]
         },
         {
-            "Name": "DC",
+            "Name": "Nawah",
             "BuildType": "release",
             "CleanBeforeBuild": false,
             "CmakeBuildOptions": [
-                "-DBuildProjectEngine=1",
-                "-DBuildProjectIG_ToolDistortionCharacterizer=1"
+                "-DBuildProjectNawah_GameServer=1",
+                "-DBuildProjectNawah_ToolsFbxExtractor=1"
             ],
             "TargetNames": [
-                "DistortionCharacterizer"
+                "NawahGameServer"
             ]
         }
     ],
     "Targets": {
+        "AssetProcessor": {
+            "Name": "AssetProcessor",
+            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/AssetProcessor",
+            "ArtefactFileName": "AssetProcessor.exe",
+            "RequiresQtDeploy" : true,
+            "InstallerType": "zipInstaller",
+            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/AssetProcessor/Version.h"
+        },
         "ImageGenerator": {
             "Name": "ImageGenerator",
             "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/ImageGenerator",
@@ -76,7 +88,23 @@
                 "BuildArtefactToQtInstallerPackagesRelativeFolder": {
                 "C:/Users/Po/code/simthetiq/bin/DistortionCharacterizer": "packages/com.simthetiq.distortionCharacterizer/data" }
             },
-            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/AssetProcessor/Version.h"
+            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/Tools/DistortionCharacterizer/Version.h"
+        },
+         "NawahGameServer": {
+            "Name": "NawahGameServer",
+            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/NawahGameServer",
+            "ArtefactFileName": "NawahGameServer.exe",
+            "RequiresQtDeploy" : true,
+            "InstallerType": "zipInstaller",
+            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/Nawah/NawahGameServer/Version.h"
+        },
+        "TerrainProcessor": {
+            "Name": "TerrainProcessor",
+            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/TerrainProcessor",
+            "ArtefactFileName": "TerrainProcessor.exe",
+            "RequiresQtDeploy" : true,
+            "InstallerType": "zipInstaller",
+            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/Tools/TerrainProcessor/Version.h"
         },
         "UnitTests": {
            "Name": "UnitTests",
