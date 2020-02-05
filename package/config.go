@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 type repository struct {
@@ -25,9 +26,9 @@ type cmakeGenerator struct {
 }
 
 type qtConfig struct {
-	QtBinPath                string
-	QtLibPath                string
-	QtInstallerFrameworkPath string
+	QtBinPath                   string
+	QtLibPath                   string
+	QtInstallerFrameworkBinPath string
 }
 
 type buildType string
@@ -41,18 +42,46 @@ const (
 type installerType string
 
 const (
-	noInstaller  = "noInstaller"
-	zipInstaller = "zipInstaller"
-	qtInstaller  = "qtInstaller"
+	noInstallerType  = "noInstaller"
+	zipInstallerType = "zipInstaller"
+	qtInstallerType  = "qtInstaller"
 )
 
+type qtInstallerConfig struct {
+	QtInstallerRelativeFolderPath                            string
+	BuildArtefactToQtInstallerPackagesRelativeFolder map[string]string
+}
+
 type target struct {
-	Name               string
-	BuildType          buildType
-	CleanBeforeBuild   bool
-	CmakeBuildOptions  []string
-	ArtefactFolderPath string
+	Name string
+
+	// installer related
+	RequiresQtDeploy   bool
+	RepoRelativeArtefactFolderPath string
+	ArtefactFileName   string
 	InstallerType      installerType
+	QtInstallerConfig  *qtInstallerConfig
+
+	RepoRelativeVersionFilePath string
+	versionTuple    [4]int
+}
+
+func (t *target) versionFilePath(repoPath string) string {
+	return filepath.Join(repoPath, t.RepoRelativeVersionFilePath)
+}
+
+func (t *target) artefactFolderPath(repoPath string) string {
+	return filepath.Join(repoPath, t.RepoRelativeArtefactFolderPath)
+}
+
+type build struct {
+	Name string
+
+	BuildType         buildType
+	CleanBeforeBuild  bool
+	CmakeBuildOptions []string
+
+	TargetNames []string
 }
 
 type config struct {
@@ -61,7 +90,8 @@ type config struct {
 	Git        gitSourceControl
 	Cmake      cmakeGenerator
 	Qt         qtConfig
-	Targets    []target
+	Builds     []build
+	Targets    map[string]target
 }
 
 // this function will create and save a template config file name templateConfig.json
@@ -71,23 +101,54 @@ func MakeTemplateConfig() error {
 
 	c.Cmake.Generator = "Visual Studio 15 2017 Win64"
 
+	// make targets
 	t0 := target{
 		Name:               "DummyName",
-		BuildType:          "debugBuild",
-		CleanBeforeBuild:   false,
-		CmakeBuildOptions:  []string{"-DOption0=1", "-DOption1=1"},
-		ArtefactFolderPath: "d:/somePath",
-		InstallerType:      "zipInstaller"}
-
+		RepoRelativeArtefactFolderPath: "/someRelativePath/a/b/c",
+		InstallerType:      "zipInstaller",
+		RepoRelativeVersionFilePath:    "/pathTo/SomeVersion/File.h"}
 	t1 := target{
 		Name:               "DummyName2",
-		BuildType:          "releaseWithDebugInfoBuild",
-		CleanBeforeBuild:   true,
-		CmakeBuildOptions:  []string{"-DOption0=1", "-DOption1=0"},
-		ArtefactFolderPath: "d:/somePath",
-		InstallerType:      "qtInstaller"}
-	c.Targets = append(c.Targets, t0)
-	c.Targets = append(c.Targets, t1)
+		RepoRelativeArtefactFolderPath: "/someRelativePath/a/b/d",
+		InstallerType:      "zipInstaller",
+		RepoRelativeVersionFilePath:    "/pathTo/SomeVersion/File.h"}
+	t2 := target{
+		Name:               "DummyName3",
+		RepoRelativeArtefactFolderPath: "/someRelativePath/a/b/e",
+		InstallerType:      "qtInstaller",
+		RepoRelativeVersionFilePath:    ""} // no path means no version increment
+
+	t2.QtInstallerConfig = &qtInstallerConfig{
+		QtInstallerRelativeFolderPath: "/someRepoRelative/Folder/Path/installer",
+		BuildArtefactToQtInstallerPackagesRelativeFolder: map[string]string{
+			"repo/relative/path/to/my/build/artefact":  "packages/com.mycompany.myexec/data",
+			"repo/relative/path/to/my/build/artefact2": "packages/com.mycompany.myexec.Options/data"},
+	}
+
+	c.Targets = make(map[string]target)
+	c.Targets[t0.Name] = t0
+	c.Targets[t1.Name] = t1
+	c.Targets[t2.Name] = t2
+
+	//make bbuild
+	b := build{
+		Name:              "Dummy debugbuild",
+		BuildType:         "debugBuild",
+		CleanBeforeBuild:  false,
+		CmakeBuildOptions: []string{"-DOption0=1", "-DOption1=1"}}
+
+	b.TargetNames = []string{t0.Name, t1.Name}
+
+	// build 2
+	b2 := build{
+		Name:              "Dummy release build",
+		BuildType:         "releaseWithDebugInfoBuild",
+		CleanBeforeBuild:  true,
+		CmakeBuildOptions: []string{"-DOption0=1", "-DOption1=0"}}
+
+	b2.TargetNames = []string{t0.Name, t1.Name, t2.Name}
+
+	c.Builds = []build{b, b2}
 
 	var prettyJson bytes.Buffer
 	jsonBytes, _ := json.Marshal(&c)

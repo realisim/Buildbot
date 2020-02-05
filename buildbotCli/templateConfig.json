@@ -2,7 +2,8 @@
 	"DeployPath": "",
 	"Repo": {
 		"Path": "",
-		"BuildPath": ""
+		"BuildPath": "",
+		"UpdateBeforeBuild": false
 	},
 	"Git": {
 		"ExePath": ""
@@ -14,30 +15,70 @@
 	"Qt": {
 		"QtBinPath": "",
 		"QtLibPath": "",
-		"QtInstallerFrameworkPath": ""
+		"QtInstallerFrameworkBinPath": ""
 	},
-	"Targets": [
+	"Builds": [
 		{
-			"Name": "DummyName",
+			"Name": "Dummy debugbuild",
 			"BuildType": "debugBuild",
 			"CleanBeforeBuild": false,
 			"CmakeBuildOptions": [
 				"-DOption0=1",
 				"-DOption1=1"
 			],
-			"ArtefactFolderPath": "d:/somePath",
-			"InstallerType": "zipInstaller"
+			"TargetNames": [
+				"DummyName",
+				"DummyName2"
+			]
 		},
 		{
-			"Name": "DummyName2",
+			"Name": "Dummy release build",
 			"BuildType": "releaseWithDebugInfoBuild",
 			"CleanBeforeBuild": true,
 			"CmakeBuildOptions": [
 				"-DOption0=1",
 				"-DOption1=0"
 			],
-			"ArtefactFolderPath": "d:/somePath",
-			"InstallerType": "qtInstaller"
+			"TargetNames": [
+				"DummyName",
+				"DummyName2",
+				"DummyName3"
+			]
 		}
-	]
+	],
+	"Targets": {
+		"DummyName": {
+			"Name": "DummyName",
+			"RequiresQtDeploy": false,
+			"RepoRelativeArtefactFolderPath": "/someRelativePath/a/b/c",
+			"ArtefactFileName": "",
+			"InstallerType": "zipInstaller",
+			"QtInstallerConfig": null,
+			"RepoRelativeVersionFilePath": "/pathTo/SomeVersion/File.h"
+		},
+		"DummyName2": {
+			"Name": "DummyName2",
+			"RequiresQtDeploy": false,
+			"RepoRelativeArtefactFolderPath": "/someRelativePath/a/b/d",
+			"ArtefactFileName": "",
+			"InstallerType": "zipInstaller",
+			"QtInstallerConfig": null,
+			"RepoRelativeVersionFilePath": "/pathTo/SomeVersion/File.h"
+		},
+		"DummyName3": {
+			"Name": "DummyName3",
+			"RequiresQtDeploy": false,
+			"RepoRelativeArtefactFolderPath": "/someRelativePath/a/b/e",
+			"ArtefactFileName": "",
+			"InstallerType": "qtInstaller",
+			"QtInstallerConfig": {
+				"QtInstallerRelativeFolderPath": "/someRepoRelative/Folder/Path/installer",
+				"BuildArtefactToQtInstallerPackagesRelativeFolder": {
+					"repo/relative/path/to/my/build/artefact": "packages/com.mycompany.myexec/data",
+					"repo/relative/path/to/my/build/artefact2": "packages/com.mycompany.myexec.Options/data"
+				}
+			},
+			"RepoRelativeVersionFilePath": ""
+		}
+	}
 }

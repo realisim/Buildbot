@@ -6,6 +6,11 @@ import (
 	"os/exec"
 )
 
+type cmake struct {
+	configPtr *config
+	buildPtr  *build
+}
+
 func commandOutput(cmd *exec.Cmd) (string, error) {
 	fmt.Printf("Command: %v\n", cmd.Args)
 
@@ -19,19 +24,19 @@ func commandOutput(cmd *exec.Cmd) (string, error) {
 	return string(out), nil
 }
 
-func cmakeBuild(configPtr *config, t *target) error {
-	buildType := toCmakeBuildType(t.BuildType)
+func (c cmake) Build() error {
+	buildType := toCmakeBuildType(c.buildPtr.BuildType)
 
-	args := []string{"--build", configPtr.Repo.BuildPath,
+	args := []string{"--build", c.configPtr.Repo.BuildPath,
 		"--config", buildType}
-	if t.CleanBeforeBuild {
+	if c.buildPtr.CleanBeforeBuild {
 		args = append(args, "--clean-first")
 	}
 
-	buildCommand := exec.Command(configPtr.Cmake.ExePath,
+	buildCommand := exec.Command(c.configPtr.Cmake.ExePath,
 		args...)
 
-	buildCommand.Dir = configPtr.Repo.BuildPath
+	buildCommand.Dir = c.configPtr.Repo.BuildPath
 
 	var out string
 	var err error
@@ -42,20 +47,20 @@ func cmakeBuild(configPtr *config, t *target) error {
 	return nil
 }
 
-func cmakeGenerate(configPtr *config, t *target) error {
+func (c cmake) Generate() error {
 
 	// start by removing the CMakeCache.txt as it contains previous options
 	// set by someone or another build..
-	cacheFilePath := configPtr.Repo.BuildPath + "/CMakeCache.txt"
+	cacheFilePath := c.configPtr.Repo.BuildPath + "/CMakeCache.txt"
 	if _, err := os.Stat(cacheFilePath); err == nil {
 		// file exists, remove it
 		os.Remove(cacheFilePath)
 	}
 
 	// create build path if not exists
-	if _, err := os.Stat(configPtr.Repo.BuildPath); os.IsNotExist(err) {
-		if err := os.MkdirAll(configPtr.Repo.BuildPath, 0777); err != nil {
-			return fmt.Errorf("could not create build folder %v, %v", configPtr.Repo.BuildPath, err)
+	if _, err := os.Stat(c.configPtr.Repo.BuildPath); os.IsNotExist(err) {
+		if err := os.MkdirAll(c.configPtr.Repo.BuildPath, 0777); err != nil {
+			return fmt.Errorf("could not create build folder %v, %v", c.configPtr.Repo.BuildPath, err)
 		}
 	}
 
@@ -65,15 +70,15 @@ func cmakeGenerate(configPtr *config, t *target) error {
 	//-DCMAKE_PREFIX_PATH=$QT_PREFIX_PATH/lib/cmake/Qt5OpenGL;$QT_PREFIX_PATH/lib/cmake/Qt5Widgets;$QT_PREFIX_PATH/lib/cmake/Qt5PrintSupport;$QT_PREFIX_PATH/lib/cmake/Qt5Network
 
 	qtConfig := fmt.Sprintf("-DCMAKE_PREFIX_PATH=%v/cmake/Qt5OpenGL;%v/cmake/Qt5Widgets;%v/cmake/Qt5Core;%v/cmake/Qt5Gui",
-		configPtr.Qt.QtLibPath, configPtr.Qt.QtLibPath, configPtr.Qt.QtLibPath, configPtr.Qt.QtLibPath)
+		c.configPtr.Qt.QtLibPath, c.configPtr.Qt.QtLibPath, c.configPtr.Qt.QtLibPath, c.configPtr.Qt.QtLibPath)
 
 	args := []string{"../",
-		"-G", configPtr.Cmake.Generator}
-	args = append(args, t.CmakeBuildOptions...)
+		"-G", c.configPtr.Cmake.Generator}
+	args = append(args, c.buildPtr.CmakeBuildOptions...)
 	args = append(args, qtConfig)
 
-	generate := exec.Command(configPtr.Cmake.ExePath, args...)
-	generate.Dir = configPtr.Repo.BuildPath
+	generate := exec.Command(c.configPtr.Cmake.ExePath, args...)
+	generate.Dir = c.configPtr.Repo.BuildPath
 
 	if _, err := commandOutput(generate); err != nil {
 		return fmt.Errorf("cmakeGenerate failed: %v", err)
@@ -82,14 +87,14 @@ func cmakeGenerate(configPtr *config, t *target) error {
 	return nil
 }
 
-func cmakeInstall(configPtr *config, t *target) error {
-	buildType := toCmakeBuildType(t.BuildType)
-	buildCommand := exec.Command(configPtr.Cmake.ExePath,
-		"--build", configPtr.Repo.BuildPath,
+func (c cmake) Install() error {
+	buildType := toCmakeBuildType(c.buildPtr.BuildType)
+	buildCommand := exec.Command(c.configPtr.Cmake.ExePath,
+		"--build", c.configPtr.Repo.BuildPath,
 		"--config", buildType,
 		"--target", "INSTALL")
 
-	buildCommand.Dir = configPtr.Repo.BuildPath
+	buildCommand.Dir = c.configPtr.Repo.BuildPath
 
 	if _, err := commandOutput(buildCommand); err != nil {
 		return fmt.Errorf("cmakeInstall failed: %v", err)

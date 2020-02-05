@@ -8,8 +8,8 @@ import (
 
 func main() {
 	configFlagPtr := flag.String("config", "config.json", "Specifies the filepath to the config file.")
-	targetFlagPtr := flag.String("target", "all", "Specifies the target to build. Targets are defined by the config file.")
-	makeTemplateConfigFlagPtr := flag.Bool("makeTemplaceConfig", false, "Create and saves an empty templateConfig named templateConfig.json")
+	buildFlagPtr := flag.String("build", "", "Specifies the build. Builds are defined in the config file.")
+	makeTemplateConfigFlagPtr := flag.Bool("makeTemplateConfig", false, "Create and saves an empty templateConfig named templateConfig.json")
 
 	flag.Parse()
 
@@ -20,5 +20,5 @@ func main() {
 		}
 	}
 
-	buildbot.Build(*configFlagPtr, *targetFlagPtr)
+	buildbot.Build(*configFlagPtr, *buildFlagPtr)
 }
