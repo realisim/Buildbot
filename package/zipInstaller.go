@@ -12,6 +12,7 @@ import (
 )
 
 type zipInstaller struct {
+	c *config
 	t *target
 }
 
@@ -23,19 +24,28 @@ func (i zipInstaller) createInstaller(outputPath string) error {
 
 	w := zip.NewWriter(compressedBuffer)
 
+	artefactFolderPath := i.t.artefactFolderPath(i.c.Repo.Path)
 	// compress everything in artefact path
-	err = filepath.Walk(i.t.ArtefactFolderPath,
+	err = filepath.Walk(artefactFolderPath,
 		func(path string, info os.FileInfo, err error) error {
 
 			// do not archive folder...
-			if info.IsDir() {
+			if info != nil && info.IsDir() {
 				return nil
 			}
 
-			relativePath := strings.TrimPrefix(path, filepath.Clean(i.t.ArtefactFolderPath)+"\\")
+			relativePath := strings.TrimPrefix(path, artefactFolderPath+"\\")
 			fmt.Printf("Compressing %v | %v\n", path, relativePath)
-			f, _ := w.Create(relativePath)
-			fileContent, _ := ioutil.ReadFile(path)
+			f, err := w.Create(relativePath)
+			if err != nil {
+				return fmt.Errorf("Error creating zip writer: %v\n", err)
+			}
+
+			fileContent, err := ioutil.ReadFile(path)
+			if err != nil {
+				return fmt.Errorf("Error reading file: %v\n", err)
+			}
+
 			f.Write(fileContent)
 
 			return nil

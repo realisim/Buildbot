@@ -103,9 +103,9 @@ func createInstallers(c *config, b *build) error {
 		case noInstallerType:
 			i = noInstaller{&t}
 		case zipInstallerType:
-			i = zipInstaller{&t}
+			i = zipInstaller{c, &t}
 		case qtInstallerType:
-			i = qtInstaller{&c.Qt, &t}
+			i = qtInstaller{c, &t}
 		default:
 		}
 
@@ -126,7 +126,7 @@ func deployQt(c *config, b *build) error {
 
 			args := []string{
 				fmt.Sprintf("%v/%v/%v",
-					t.ArtefactFolderPath,
+					t.artefactFolderPath(c.Repo.Path),
 					toBuildFolderName(b.BuildType),
 					t.ArtefactFileName),
 				"--release", "--force"}
@@ -146,13 +146,13 @@ func incrementVersion(c *config, b *build) {
 	for _, tn := range b.TargetNames {
 		t := c.Targets[tn]
 
-		if t.VersionFilePath == "" {
+		if t.RepoRelativeVersionFilePath == "" {
 			return
 		}
 
-		content, err := ioutil.ReadFile(t.VersionFilePath)
+		content, err := ioutil.ReadFile(t.versionFilePath(c.Repo.Path))
 		if err != nil {
-			fmt.Printf("if this happens, investigate if we should treat it as an error...\n")
+			fmt.Printf("could not increment version: %v, if this happens, investigate if we should treat it as an error...\n", err)
 			return
 		}
 
@@ -177,7 +177,7 @@ func incrementVersion(c *config, b *build) {
 				string(matches[7])+string(matches[8]),
 				fmt.Sprintf("VERSION_BUILDNUMBER %d", buildNumber), 1)
 
-			ioutil.WriteFile(t.VersionFilePath, []byte(newContent), 0)
+			ioutil.WriteFile(t.versionFilePath(c.Repo.Path), []byte(newContent), 0)
 
 			fmt.Printf("Build number increased from: %v.%v.%v.%v to %v.%v.%v.%v\n",
 				major, minor, revision, buildNumber-1,

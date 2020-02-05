@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 type repository struct {
@@ -47,7 +48,7 @@ const (
 )
 
 type qtInstallerConfig struct {
-	QtInstallerFolderPath                            string
+	QtInstallerRelativeFolderPath                            string
 	BuildArtefactToQtInstallerPackagesRelativeFolder map[string]string
 }
 
@@ -56,13 +57,21 @@ type target struct {
 
 	// installer related
 	RequiresQtDeploy   bool
-	ArtefactFolderPath string
+	RepoRelativeArtefactFolderPath string
 	ArtefactFileName   string
 	InstallerType      installerType
 	QtInstallerConfig  *qtInstallerConfig
 
-	VersionFilePath string
+	RepoRelativeVersionFilePath string
 	versionTuple    [4]int
+}
+
+func (t *target) versionFilePath(repoPath string) string {
+	return filepath.Join(repoPath, t.RepoRelativeVersionFilePath)
+}
+
+func (t *target) artefactFolderPath(repoPath string) string {
+	return filepath.Join(repoPath, t.RepoRelativeArtefactFolderPath)
 }
 
 type build struct {
@@ -95,25 +104,25 @@ func MakeTemplateConfig() error {
 	// make targets
 	t0 := target{
 		Name:               "DummyName",
-		ArtefactFolderPath: "d:/somePath",
+		RepoRelativeArtefactFolderPath: "/someRelativePath/a/b/c",
 		InstallerType:      "zipInstaller",
-		VersionFilePath:    "c:/pathTo/SomeVersion/File.h"}
+		RepoRelativeVersionFilePath:    "/pathTo/SomeVersion/File.h"}
 	t1 := target{
 		Name:               "DummyName2",
-		ArtefactFolderPath: "d:/somePath2",
+		RepoRelativeArtefactFolderPath: "/someRelativePath/a/b/d",
 		InstallerType:      "zipInstaller",
-		VersionFilePath:    "c:/pathTo/SomeVersion/File.h"}
+		RepoRelativeVersionFilePath:    "/pathTo/SomeVersion/File.h"}
 	t2 := target{
 		Name:               "DummyName3",
-		ArtefactFolderPath: "d:/somePath3",
+		RepoRelativeArtefactFolderPath: "/someRelativePath/a/b/e",
 		InstallerType:      "qtInstaller",
-		VersionFilePath:    ""} // no path means no version increment
+		RepoRelativeVersionFilePath:    ""} // no path means no version increment
 
 	t2.QtInstallerConfig = &qtInstallerConfig{
-		QtInstallerFolderPath: "e:/installer",
+		QtInstallerRelativeFolderPath: "/someRepoRelative/Folder/Path/installer",
 		BuildArtefactToQtInstallerPackagesRelativeFolder: map[string]string{
-			"d:/path/to/my/build/artefact":  "packages/com.mycompany.myexec/data",
-			"d:/path/to/my/build/artefact2": "packages/com.mycompany.myexec.Options/data"},
+			"repo/relative/path/to/my/build/artefact":  "packages/com.mycompany.myexec/data",
+			"repo/relative/path/to/my/build/artefact2": "packages/com.mycompany.myexec.Options/data"},
 	}
 
 	c.Targets = make(map[string]target)

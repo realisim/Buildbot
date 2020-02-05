@@ -15,7 +15,7 @@
 	"Qt": {
 		"QtBinPath": "",
 		"QtLibPath": "",
-		"QtInstallerFrameworkPath": ""
+		"QtInstallerFrameworkBinPath": ""
 	},
 	"Builds": [
 		{
@@ -50,35 +50,35 @@
 		"DummyName": {
 			"Name": "DummyName",
 			"RequiresQtDeploy": false,
-			"ArtefactFolderPath": "d:/somePath",
+			"RepoRelativeArtefactFolderPath": "/someRelativePath/a/b/c",
 			"ArtefactFileName": "",
 			"InstallerType": "zipInstaller",
 			"QtInstallerConfig": null,
-			"VersionFilePath": "c:/pathTo/SomeVersion/File.h"
+			"RepoRelativeVersionFilePath": "/pathTo/SomeVersion/File.h"
 		},
 		"DummyName2": {
 			"Name": "DummyName2",
 			"RequiresQtDeploy": false,
-			"ArtefactFolderPath": "d:/somePath2",
+			"RepoRelativeArtefactFolderPath": "/someRelativePath/a/b/d",
 			"ArtefactFileName": "",
 			"InstallerType": "zipInstaller",
 			"QtInstallerConfig": null,
-			"VersionFilePath": "c:/pathTo/SomeVersion/File.h"
+			"RepoRelativeVersionFilePath": "/pathTo/SomeVersion/File.h"
 		},
 		"DummyName3": {
 			"Name": "DummyName3",
 			"RequiresQtDeploy": false,
-			"ArtefactFolderPath": "d:/somePath3",
+			"RepoRelativeArtefactFolderPath": "/someRelativePath/a/b/e",
 			"ArtefactFileName": "",
 			"InstallerType": "qtInstaller",
 			"QtInstallerConfig": {
-				"QtInstallerFolderPath": "e:/installer",
+				"QtInstallerRelativeFolderPath": "/someRepoRelative/Folder/Path/installer",
 				"BuildArtefactToQtInstallerPackagesRelativeFolder": {
-					"d:/path/to/my/build/artefact": "packages/com.mycompany.myexec/data",
-					"d:/path/to/my/build/artefact2": "packages/com.mycompany.myexec.Options/data"
+					"repo/relative/path/to/my/build/artefact": "packages/com.mycompany.myexec/data",
+					"repo/relative/path/to/my/build/artefact2": "packages/com.mycompany.myexec.Options/data"
 				}
 			},
-			"VersionFilePath": ""
+			"RepoRelativeVersionFilePath": ""
 		}
 	}
 }
