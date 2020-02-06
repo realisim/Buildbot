@@ -14,7 +14,7 @@ func gitUpdate(configPtr *config) error {
 	checkoutMaster := exec.Command(configPtr.Git.ExePath, "checkout", "master")
 	checkoutMaster.Dir = configPtr.Repo.Path
 
-	_, err := commandOutput(checkoutMaster)
+	err := commandOutput(checkoutMaster)
 	if err != nil {
 		return fmt.Errorf("checkout failed: %v", err)
 	}
@@ -23,7 +23,7 @@ func gitUpdate(configPtr *config) error {
 	pullMaster := exec.Command(configPtr.Git.ExePath, "pull")
 	pullMaster.Dir = configPtr.Repo.Path
 
-	_, err = commandOutput(pullMaster)
+	err = commandOutput(pullMaster)
 	if err != nil {
 		fmt.Errorf("pull failed: %v", err)
 	}
@@ -132,7 +132,7 @@ func deployQt(c *config, b *build) error {
 				"--release", "--force"}
 
 			command := exec.Command(c.Qt.QtBinPath+"/windeployqt.exe", args...)
-			if _, err := commandOutput(command); err != nil {
+			if err := commandOutput(command); err != nil {
 				return fmt.Errorf("windeployqt.exe failed: %v", err)
 			}
 		}

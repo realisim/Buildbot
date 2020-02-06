@@ -11,23 +11,24 @@ type cmake struct {
 	buildPtr  *build
 }
 
-func commandOutput(cmd *exec.Cmd) (string, error) {
+func commandOutput(cmd *exec.Cmd) error {
 	fmt.Printf("Command: %v\n", cmd.Args)
 
 	var out []byte
 	var err error
-	if out, err = cmd.Output(); err != nil {
-		return string(out), fmt.Errorf("command failed: %v", err)
+	if out, err = cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("command failed: %v\n, %v\n", err, string(out))
 	}
 
 	fmt.Printf(string(out))
-	return string(out), nil
+	return nil
 }
 
 func (c cmake) Build() error {
 	buildType := toCmakeBuildType(c.buildPtr.BuildType)
 
-	args := []string{"--build", c.configPtr.Repo.BuildPath,
+	args := []string{"--build", 
+		c.configPtr.Repo.BuildPath,
 		"--config", buildType}
 	if c.buildPtr.CleanBeforeBuild {
 		args = append(args, "--clean-first")
@@ -38,10 +39,8 @@ func (c cmake) Build() error {
 
 	buildCommand.Dir = c.configPtr.Repo.BuildPath
 
-	var out string
-	var err error
-	if out, err = commandOutput(buildCommand); err != nil {
-		return fmt.Errorf("cmakeBuild failed: %v\n, %v", err, out)
+	if err := commandOutput(buildCommand); err != nil {
+		return fmt.Errorf("cmakeBuild failed: %v\n", err)
 	}
 
 	return nil
@@ -80,7 +79,7 @@ func (c cmake) Generate() error {
 	generate := exec.Command(c.configPtr.Cmake.ExePath, args...)
 	generate.Dir = c.configPtr.Repo.BuildPath
 
-	if _, err := commandOutput(generate); err != nil {
+	if err := commandOutput(generate); err != nil {
 		return fmt.Errorf("cmakeGenerate failed: %v", err)
 	}
 
@@ -96,7 +95,7 @@ func (c cmake) Install() error {
 
 	buildCommand.Dir = c.configPtr.Repo.BuildPath
 
-	if _, err := commandOutput(buildCommand); err != nil {
+	if err := commandOutput(buildCommand); err != nil {
 		return fmt.Errorf("cmakeInstall failed: %v", err)
 	}
 
