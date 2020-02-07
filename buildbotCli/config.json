@@ -31,7 +31,7 @@
         },
         {
             "Name": "IG",
-            "BuildType": "release",
+            "BuildType": "releaseBuild",
             "CleanBeforeBuild": false,
             "CmakeBuildOptions": [
                 "-DBuildProjectEngine=1",
@@ -49,7 +49,7 @@
         },
         {
             "Name": "Nawah",
-            "BuildType": "release",
+            "BuildType": "releaseBuild",
             "CleanBeforeBuild": false,
             "CmakeBuildOptions": [
                 "-DBuildProjectNawah_GameServer=1",
@@ -63,55 +63,55 @@
     "Targets": {
         "AssetProcessor": {
             "Name": "AssetProcessor",
-            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/AssetProcessor",
+            "RepoRelativeArtefactFolderPath": "/bin/AssetProcessor",
             "ArtefactFileName": "AssetProcessor.exe",
             "RequiresQtDeploy" : true,
             "InstallerType": "zipInstaller",
-            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/AssetProcessor/Version.h"
+            "RepoRelativeVersionFilePath": "/Projects/IG/AssetProcessor/Version.h"
         },
         "ImageGenerator": {
             "Name": "ImageGenerator",
-            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/ImageGenerator",
+            "RepoRelativeArtefactFolderPath": "/bin/ImageGenerator",
             "ArtefactFileName": "ImageGenerator.exe",
             "RequiresQtDeploy" : true,
             "InstallerType": "zipInstaller",
-            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/ImageGenerator/Version.h"
+            "RepoRelativeVersionFilePath": "/Projects/IG/ImageGenerator/Version.h"
         },
         "DistortionCharacterizer": {
             "Name": "DistortionCharacterizer",
-            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/DistortionCharacterizer",
+            "RepoRelativeArtefactFolderPath": "/bin/DistortionCharacterizer",
             "ArtefactFileName": "DistortionCharacterizer.exe",
             "RequiresQtDeploy" : true,
             "InstallerType": "qtInstaller",
             "QtInstallerConfig": {
-                "QtInstallerFolderPath": "C:/Users/Po/code/simthetiq/Projects/IG/Tools/DistortionCharacterizer/Installer",
+                "QtInstallerRelativeFolderPath": "/Projects/IG/Tools/DistortionCharacterizer/Installer",
                 "BuildArtefactToQtInstallerPackagesRelativeFolder": {
-                "C:/Users/Po/code/simthetiq/bin/DistortionCharacterizer": "packages/com.simthetiq.distortionCharacterizer/data" }
+                "/bin/DistortionCharacterizer": "packages/com.simthetiq.distortionCharacterizer/data" }
             },
-            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/Tools/DistortionCharacterizer/Version.h"
+            "RepoRelativeVersionFilePath": "/Projects/IG/Tools/DistortionCharacterizer/Version.h"
         },
          "NawahGameServer": {
             "Name": "NawahGameServer",
-            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/NawahGameServer",
+            "RepoRelativeArtefactFolderPath": "/bin/NawahGameServer",
             "ArtefactFileName": "NawahGameServer.exe",
             "RequiresQtDeploy" : true,
             "InstallerType": "zipInstaller",
-            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/Nawah/NawahGameServer/Version.h"
+            "RepoRelativeVersionFilePath": "/Projects/Nawah/NawahGameServer/Version.h"
         },
         "TerrainProcessor": {
             "Name": "TerrainProcessor",
-            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/TerrainProcessor",
+            "RepoRelativeArtefactFolderPath": "/bin/TerrainProcessor",
             "ArtefactFileName": "TerrainProcessor.exe",
             "RequiresQtDeploy" : true,
             "InstallerType": "zipInstaller",
-            "VersionFilePath": "C:/Users/Po/code/simthetiq/Projects/IG/Tools/TerrainProcessor/Version.h"
+            "RepoRelativeVersionFilePath": "/Projects/IG/Tools/TerrainProcessor/Version.h"
         },
         "UnitTests": {
            "Name": "UnitTests",
-            "ArtefactFolderPath": "C:/Users/Po/code/simthetiq/bin/UnitTests",
+            "RepoRelativeArtefactFolderPath": "/bin/UnitTests",
             "RequiresQtDeploy" : false,
             "InstallerType": "noInstaller",
-            "VersionFilePath": ""
+            "RepoRelativeVersionFilePath": ""
         }
     }
 }
