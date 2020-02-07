@@ -31,20 +31,18 @@ func gitUpdate(configPtr *config) error {
 	return nil
 }
 
-func Build(iConfigFilePath, iBuild string) {
+func Build(iConfigFilePath, iBuild string) error {
 	fmt.Printf("Build call with config %s and build %s\n", iConfigFilePath, iBuild)
 
 	c, err := parseConfig(iConfigFilePath)
 	if err != nil {
-		fmt.Printf("Parse config failed: %v\n", err)
-		return
+		return fmt.Errorf("Parse config failed: %v\n", err)
 	}
 
 	// git update
 	if c.Repo.UpdateBeforeBuild {
 		if err := gitUpdate(&c); err != nil {
-			fmt.Printf("gitUpdate failed: %v\n", err)
-			return
+			return fmt.Errorf("gitUpdate failed: %v\n", err)
 		}
 	}
 
@@ -62,8 +60,7 @@ func Build(iConfigFilePath, iBuild string) {
 	// cmake generator
 	cmake := cmake{&c, &b}
 	if err := cmake.Generate(); err != nil {
-		fmt.Printf("cmakeGenerate failed: %v\n", err)
-		return
+		return fmt.Errorf("cmakeGenerate failed: %v\n", err)
 	}
 
 	//increment version
@@ -71,14 +68,12 @@ func Build(iConfigFilePath, iBuild string) {
 
 	// cmake build
 	if err := cmake.Build(); err != nil {
-		fmt.Printf("cmakeBuild failed: %v\n", err)
-		return
+		return fmt.Errorf("cmakeBuild failed: %v\n", err)
 	}
 
 	// cmake run install target
 	if err := cmake.Install(); err != nil {
-		fmt.Printf("cmakeInstall failed: %v\n", err)
-		return
+		return fmt.Errorf("cmakeInstall failed: %v\n", err)
 	}
 
 	// deploy qt if necessary
@@ -86,11 +81,11 @@ func Build(iConfigFilePath, iBuild string) {
 
 	// create installer for each target of build
 	if err := createInstallers(&c, &b); err != nil {
-		fmt.Printf("createInstallers failed: %v\n", err)
-		return
+		return fmt.Errorf("createInstallers failed: %v\n", err)
 	}
 
 	fmt.Printf("Build done.")
+	return nil
 }
 
 func createInstallers(c *config, b *build) error {

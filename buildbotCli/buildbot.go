@@ -20,5 +20,7 @@ func main() {
 		}
 	}
 
-	buildbot.Build(*configFlagPtr, *buildFlagPtr)
+	if err := buildbot.Build(*configFlagPtr, *buildFlagPtr); err != nil {
+		fmt.Printf("build failed: %v\n", err)
+	}
 }
